@@ -1,4 +1,3 @@
-// components/RouteList.tsx
 import { Route } from "@/utils/api"
 import { FaPlane, FaTrain, FaBus } from "react-icons/fa"
 interface RouteListProps {
@@ -8,9 +7,8 @@ interface RouteListProps {
 }
 
 const RouteList: React.FC<RouteListProps> = ({ routes, onBookTicket,bookedRoutes }) => {
-    console.log(routes)
     if (routes.length === 0) {
-        return <p className="text-center text-gray-600">No routes found.</p>;
+        return <p className="text-center text-gray-600">No routes found.</p>
     }
 
     const getTransportIcon = (transportType: string) => {

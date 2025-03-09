@@ -1,4 +1,4 @@
-// app/page.tsx
+
 "use client";
 import { FC, useEffect, useState } from "react";
 import SearchForm from "./components/SearchForm";
@@ -66,7 +66,7 @@ const Home: FC = () => {
 
 
     const handleSearchByDate = async (params: { departureTime:string }) => {
-        setLoading(true); // Показываем экран загрузки
+        setLoading(true);
         try {
             const results = await searchRoutesByDate({
                 ...params,

@@ -1,4 +1,6 @@
-import axios from "axios";
+
+export const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+
 
 export interface Route {
     id: string;
@@ -22,7 +24,7 @@ interface SearchParams {
 
 
 export const searchRoutes = async (params: SearchParams) => {
-    const response = await fetch("http://localhost:8080/routes/search?" + new URLSearchParams({
+    const response = await fetch(`http://localhost:8080/routes/search?` + new URLSearchParams({
         "origin":params.origin,
         "destination":params.destination,
         "departureTime":params.departureTime,
@@ -35,7 +37,6 @@ export const searchRoutes = async (params: SearchParams) => {
         throw new Error("Failed to fetch")
     }
     const res = await response.json()
-    console.log(res)
     return res
 }
 

@@ -1,4 +1,5 @@
 "use client"
+import { backendUrl } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,7 +14,7 @@ export default function SignUp() {
         const formData = new FormData(event.currentTarget);
 
         try {
-            const response = await fetch("http://localhost:8080/users/register", {
+            const response = await fetch(`http://localhost:8080/users/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

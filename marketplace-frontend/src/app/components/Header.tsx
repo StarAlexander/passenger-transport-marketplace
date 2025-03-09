@@ -1,4 +1,3 @@
-// components/Header.tsx
 "use client";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -8,7 +7,6 @@ import LogoutButton from "./LogoutButton";
 const Header = () => {
     const { data: session } = useSession() as any;
     const pathname = usePathname()
-    console.log(session)
     return (
         <header className="bg-white shadow-md py-4 w-screen px-6 absolute top-0 z-50">
             <div className="max-w-4xl mx-auto flex justify-between items-center">

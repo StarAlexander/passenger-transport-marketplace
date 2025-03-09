@@ -24,10 +24,6 @@ public class RouteController {
             @RequestParam(defaultValue = "mixed") String transportType,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureTime,
             @RequestParam Long userId) {
-
-        System.out.println(origin);
-        System.out.println(destination);
-        System.out.println(transportType);
         return routeService.searchRoutes(origin, destination,transportType, departureTime,userId);
     }
 

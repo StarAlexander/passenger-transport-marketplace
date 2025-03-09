@@ -1,4 +1,3 @@
-// components/LoadingScreen.tsx
 
 interface LoadingScreenProps {
     isLoading: boolean;

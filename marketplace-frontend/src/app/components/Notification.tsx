@@ -1,4 +1,3 @@
-// components/Notification.tsx
 import { useState, useEffect } from "react";
 
 interface NotificationProps {

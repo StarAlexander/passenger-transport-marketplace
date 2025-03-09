@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./marketplace-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "c33c1c2d89e247879900234d605524cd"
+      NEXT_PUBLIC_API_URL: "http://backend:8080" 
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./marketplace-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" 
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlite:/data/marketplace.db
+    volumes:
+      - ./marketplace-backend/data:/data 
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
