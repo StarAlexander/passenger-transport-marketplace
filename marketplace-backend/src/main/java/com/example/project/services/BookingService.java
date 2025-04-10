@@ -1,15 +1,18 @@
 package com.example.project.services;
+
 import com.example.project.models.Booking;
-import com.example.project.models.Route;
 import com.example.project.models.User;
 import com.example.project.repositories.BookingRepository;
 import com.example.project.repositories.RouteRepository;
 import com.example.project.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class BookingService {
@@ -23,27 +26,57 @@ public class BookingService {
     @Autowired
     private RouteRepository routeRepository;
 
-    public Booking createBooking(Long userId, Long routeId) {
+
+    @Transactional
+    @Async
+    public CompletableFuture<List<Booking>> createBooking(Long userId, List<Long> routeIds) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Route not found"));
+        var routes = routeRepository.findAllById(routeIds);
+        var bs = new ArrayList<Booking>();
+        for (var r: routes) {
+            var b = bookingRepository.findByRouteAndUser(r,user);
+            if (b.isEmpty()) {
+                bs.add(new Booking(user,r));
+            }
+        }
 
-        Booking booking = new Booking();
-        booking.setUser(user);
-        booking.setRoute(route);
-        booking.setBookingTime(LocalDateTime.now());
-
-        return bookingRepository.save(booking);
+        return CompletableFuture.completedFuture(bookingRepository.saveAll(bs));
     }
 
-    public void cancelBooking(Long bookingId) {
+    @Transactional
+    @Async
+    public CompletableFuture<Void> cancelBooking(Long bookingId) {
         bookingRepository.deleteById(bookingId);
+        return CompletableFuture.completedFuture(null);
     }
 
-    public List<Booking> getUserBookings(Long userId) {
+
+    @Async
+    public CompletableFuture<Double> getAverageVisitsPerUser() {
+        long totalUsers = bookingRepository.countDistinctUsers();
+        long totalBookings = bookingRepository.count();
+
+        if (totalUsers == 0) {
+            return CompletableFuture.completedFuture(0.0); // Защита от деления на ноль
+        }
+
+        return CompletableFuture.completedFuture((double) totalBookings / totalUsers);
+    }
+
+
+
+
+    // Распределение бронирований по типам транспорта
+    @Async
+    public CompletableFuture<List<Object[]>> getBookingsByTransportType() {
+        return CompletableFuture.completedFuture(bookingRepository.getBookingsByTransportType());
+    }
+
+    @Async
+    public CompletableFuture<List<Booking>> getUserBookings(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return bookingRepository.findByUser(user);
+        return CompletableFuture.completedFuture(bookingRepository.findByUser(user));
     }
 }

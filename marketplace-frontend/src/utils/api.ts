@@ -24,16 +24,17 @@ interface SearchParams {
 
 
 export const searchRoutes = async (params: SearchParams) => {
-    const response = await fetch(`http://localhost:8080/routes/search?` + new URLSearchParams({
-        "origin":params.origin,
-        "destination":params.destination,
-        "departureTime":params.departureTime,
+    const urlParams = new URLSearchParams({
         "transportType":params.transportType ?? "mixed",
         "userId":params.userId.toString()
-    }).toString())
+    })
+    if (params.departureTime) urlParams.append('departureTime',params.departureTime)
+    if (params.origin) urlParams.append('origin',params.origin)
+    if (params.destination) urlParams.append('destination',params.destination)
+    const response = await fetch(`http://localhost:8080/routes/search?` + urlParams.toString())
 
     if (!response.ok) {
-        console.log(await response.json())
+        console.log(await response.text())
         throw new Error("Failed to fetch")
     }
     const res = await response.json()
@@ -42,14 +43,17 @@ export const searchRoutes = async (params: SearchParams) => {
 
 
 
-export const bookTicket = async (routeId: string,userId:number) => {
+export const bookTicket = async (routeIds: number[],userId:number) => {
+    const params = new URLSearchParams({
+        "userId":String(userId)
+    })
+    for (const r of routeIds) {
+        params.append("routeIds",String(r))
+    }
     const response = await fetch(`http://localhost:8080/bookings`, {
         method: "POST",
         headers: { "Content-Type":"application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-            "userId":String(userId),
-            "routeId":routeId
-        })
+        body: params
     })
 
 
@@ -87,4 +91,51 @@ export const searchRoutesByDate = async (params: {
     }
 
     return response.json();
+};
+
+
+
+export const findOptimalRoute = async (
+    params: { origin: string; destination: string; desiredDepartureTime: string
+     }
+) => {
+    const urlParams = new URLSearchParams({
+        origin: params.origin,
+        destination: params.destination,
+        desiredDepartureTime: params.desiredDepartureTime
+    });
+
+    const response = await fetch(`http://localhost:8080/routes/optimal?${urlParams.toString()}`);
+
+    if (!response.ok) {
+        throw new Error("Failed to find optimal route");
+    }
+
+    return response.json();
+};
+
+
+export const fetchTotalUsers = async () => {
+    const response = await fetch(`http://localhost:8080/stats/total-users`);
+    return await response.json();
+};
+
+export const fetchTotalRoutes = async () => {
+    const response = await fetch(`http://localhost:8080/stats/total-routes`);
+    return await response.json();
+};
+
+export const fetchAverageBookingsPerUser = async () => {
+    const response = await fetch(`http://localhost:8080/stats/average-bookings-per-user`);
+    return await response.json();
+};
+
+export const fetchPopularRoutes = async () => {
+    const response = await fetch(`http://localhost:8080/stats/popular-routes`);
+    return await response.json();
+};
+
+export const fetchBookingsByTransportType = async () => {
+    const response = await fetch(`http://localhost:8080/stats/bookings-by-transport-type`);
+    return await response.json();
 };

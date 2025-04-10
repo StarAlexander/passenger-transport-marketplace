@@ -1,8 +1,10 @@
 package com.example.project;
 
 
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.sqlite.SQLiteDataSource;
@@ -10,6 +12,8 @@ import org.sqlite.SQLiteDataSource;
 import javax.sql.DataSource;
 
 @Configuration
+@EnableCaching
+@EnableAsync
 public class Settings implements WebMvcConfigurer {
 
 

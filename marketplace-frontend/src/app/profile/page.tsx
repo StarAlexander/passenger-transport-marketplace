@@ -1,12 +1,11 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cancelBooking } from "@/utils/api";
-import Header from "../components/Header";
 import LoadingScreen from "../components/LoadingScreen";
 import Notification from "../components/Notification";
+import { motion } from "framer-motion";
 
 export default function Profile() {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -16,32 +15,28 @@ export default function Profile() {
         type: "success" | "error";
     } | null>(null)
     const { data: session } = useSession() as any;
-    const router = useRouter();
 
     useEffect(() => {
-        if (!session?.user?.id) {
-            router.push("/auth/signin");
-            return;
-        }
 
         const fetchBookings = async () => {
             const response = await fetch(`http://localhost:8080/bookings/user/${session.user.id}`);
             const data = await response.json();
+            console.log(data)
             setBookings(data);
         };
 
         fetchBookings();
-    }, [session, router]);
+    }, [session]);
 
     const handleCancel = async (bookingId: string) => {
         setLoading(true)
         try{
             await cancelBooking(bookingId);
-            setNotification({message:"Cancellation successful",type:"success"})
+            setNotification({message:"Успешная отмена",type:"success"})
             setBookings(bookings.filter((b) => b.id !== bookingId));
         } catch(e) {
             console.error(e)
-            setNotification({message:"Cancellation failed",type:"error"})
+            setNotification({message:"Не удалось отменить",type:"error"})
         } finally {
             setLoading(false)
         }
@@ -49,24 +44,40 @@ export default function Profile() {
 
     return (
         <div className="min-h-screen w-screen overflow-x-hidden bg-gray-100 py-8">
-            <LoadingScreen isLoading={loading}/>
-
+            <LoadingScreen isLoading={loading} />
 
             {notification && (
-                <Notification message={notification.message} type={notification.type}/>
+                <Notification message={notification.message} type={notification.type} />
             )}
-            <Header/>
+
             <div className="max-w-4xl mx-auto mt-16 px-4">
-                <h1 className="text-3xl font-bold mb-8 text-slate-700 text-center">
-                    Your Bookings
-                </h1>
-                <div className="space-y-4">
+                {/* Анимированный заголовок */}
+                <motion.h1
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-3xl font-bold mb-8 text-slate-700 text-center"
+                >
+                    Профиль пользователя{" "}
+                    <span className="text-blue-500">{session?.user?.username}</span>
+                </motion.h1>
+
+                {/* Анимированный список бронирований */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="space-y-4"
+                >
                     {bookings.length === 0 ? (
-                        <p className="text-center text-gray-600">No bookings found.</p>
+                        <p className="text-center text-gray-600">Бронирования не найдены.</p>
                     ) : (
                         bookings.map((booking) => (
-                            <div
+                            <motion.div
                                 key={booking.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.1 * booking.id }}
                                 className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center"
                             >
                                 <div>
@@ -74,23 +85,23 @@ export default function Profile() {
                                         {booking.route.origin} → {booking.route.destination}
                                     </strong>
                                     <span className="block text-sm text-gray-600">
-                                        Departure:{" "}
+                                        Отправление:{" "}
                                         {new Date(booking.route.departureTime).toLocaleString()}
                                     </span>
                                     <span className="block text-sm text-gray-600">
-                                        Transport: {booking.route.transportType}
+                                        Транспорт: {booking.route.transportType}
                                     </span>
                                 </div>
                                 <button
                                     onClick={() => handleCancel(booking.id)}
                                     className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
                                 >
-                                    Cancel
+                                    Отменить
                                 </button>
-                            </div>
+                            </motion.div>
                         ))
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );

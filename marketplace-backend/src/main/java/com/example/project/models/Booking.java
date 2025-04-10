@@ -1,6 +1,7 @@
 package com.example.project.models;
+
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
@@ -12,8 +13,10 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
+    @JoinColumn(name="user_id", nullable=false)
     private User user;
     @ManyToOne
+    @JoinColumn(name="route_id", nullable=false)
     private Route route;
     private LocalDateTime bookingTime = LocalDateTime.now();
 
