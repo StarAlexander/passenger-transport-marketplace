@@ -1,6 +1,5 @@
 package com.example.project.controllers;
 
-import com.example.project.models.Route;
 import com.example.project.models.RouteResponse;
 import com.example.project.services.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +33,14 @@ public class RouteController {
 
 
     @GetMapping("/optimal")
-    public List<RouteResponse> findOptimalRoute(
+    public CompletableFuture<ResponseEntity<List<RouteResponse>>> findOptimalRoute(
             @RequestParam String origin,
             @RequestParam String destination,
             @RequestParam(defaultValue = "mixed") String transportType,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desiredDepartureTime) throws Exception {
-        return routeService.findOptimalRoute(origin, destination,transportType, desiredDepartureTime);
+        return routeService.findOptimalRoute(origin, destination,transportType, desiredDepartureTime)
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping

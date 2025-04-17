@@ -64,12 +64,12 @@ public class RouteService {
         }
     }
 
-    public List<RouteResponse> findOptimalRoute(String origin, String destination, String transportType, LocalDateTime desiredDepartureTime) throws Exception {
+    public CompletableFuture<List<RouteResponse>> findOptimalRoute(String origin, String destination, String transportType, LocalDateTime desiredDepartureTime) throws Exception {
         // Найти все доступные маршруты из начального города
         List<RouteResponse> directRoutes = searchRoutes(origin, destination, transportType, desiredDepartureTime,0L).get();
 
         if (!directRoutes.isEmpty()) {
-            return directRoutes;
+            return CompletableFuture.completedFuture(directRoutes);
         }
 
         var graph = new Graph();
@@ -92,7 +92,7 @@ public class RouteService {
         );
 
         if (allRoutes.isEmpty()) {
-            return Collections.emptyList();
+            return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
         for (Route route : allRoutes) {
@@ -103,10 +103,10 @@ public class RouteService {
 
         // Находим кратчайший путь
         List<List<String>> optimalPaths = graph.findAllPaths(origin,destination);
-        return optimalPaths.stream().sorted(Comparator.comparingInt(List::size))
+        return CompletableFuture.completedFuture(optimalPaths.stream().sorted(Comparator.comparingInt(List::size))
                 .map(p -> convertPathsToRoutes(p,transportType.equalsIgnoreCase("mixed") ? null : TransportType.fromString(transportType),desiredDepartureTime))
                 .map(RouteResponse::fromRouteList)
-                .toList();
+                .toList());
     }
 
 

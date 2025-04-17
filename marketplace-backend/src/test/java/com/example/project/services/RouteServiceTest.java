@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -84,7 +83,7 @@ class RouteServiceTest {
         )).thenReturn(List.of(route2));
 
         // Act
-        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime);
+        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime).get();
 
         // Assert
         assertNotNull(result);
@@ -113,7 +112,7 @@ class RouteServiceTest {
         )).thenReturn(List.of(directRoute));
 
         // Act
-        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime);
+        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime).get();
 
         // Assert
         assertNotNull(result);
@@ -141,7 +140,7 @@ class RouteServiceTest {
         )).thenReturn(List.of());
 
         // Act
-        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime);
+        List<RouteResponse> result = routeService.findOptimalRoute(origin, destination, "mixed", desiredDepartureTime).get();
 
         // Assert
         assertNotNull(result);
